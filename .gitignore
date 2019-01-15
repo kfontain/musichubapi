@@ -1,0 +1,8 @@
+#Webstorm
+./idea
+
+#NodeJS
+views/
+node_modules/
+public/
+uploads/
