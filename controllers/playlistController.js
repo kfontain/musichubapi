@@ -144,6 +144,14 @@ exports.importFromYoutube = function (req, res, next) {
 
 exports.userHasPermession = checkUserPermission;
 
+exports.updatePlaylistNbItems = function (playlistId, nbItems, next) {
+    Playlist.updateNbItems(playlistId, nbItems)
+        .then((success)=> {
+            return 0;
+        })
+        .catch((err)=> next(err));
+};
+
 async function checkUserPermission (playlistId, userId, next) {
     await Playlist.checkUserPermission(playlistId, userId)
         .then((hasPermission) => {

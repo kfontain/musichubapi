@@ -3,29 +3,30 @@ ObjectId = mongoose.Schema.ObjectId;
 
 /* Setup the schema */
 const playlistsSchema = new mongoose.Schema({
-   title: {
-       type: String,
-       required: true
-   },
-   genre: {
-       type: String
-   },
-   link: {
-       type: String
-   },
-   thumbnail: {
-       type: String
-   },
-   description: {
-       type: String
-   },
-   nbItems: {
-       type: Number
-   },
-   user_id: {
-       type: ObjectId,
-       required: true
-   }
+    title: {
+        type: String,
+        required: true
+    },
+    genre: {
+        type: String
+    },
+    link: {
+        type: String
+    },
+    thumbnail: {
+        type: String
+    },
+    description: {
+        type: String,
+        min: 0
+    },
+    nbItems: {
+        type: Number
+    },
+    user_id: {
+        type: ObjectId,
+        required: true
+    }
 });
 
 playlistsSchema.options.toJSON = {
@@ -68,7 +69,7 @@ playlistsSchema.statics.getUserPlaylists = async function (userId) {
 };
 
 playlistsSchema.statics.getUserPlaylistById = async function (playlistId, userId) {
-  return await this.findOne({user_id: mongoose.Types.ObjectId(userId),
+    return await this.findOne({user_id: mongoose.Types.ObjectId(userId),
         _id: mongoose.Types.ObjectId(playlistId)})
         .exec();
 };
@@ -80,11 +81,11 @@ playlistsSchema.statics.deleteUserPlaylist = async function (playlistId, userId)
 };
 
 playlistsSchema.statics.updateUserPlaylist = async function (playlistId, userId, playlist) {
-  return await this.findOneAndUpdate({user_id: mongoose.Types.ObjectId(userId),
-      _id: mongoose.Types.ObjectId(playlistId)},
-      playlist,
-      {new: true})
-      .exec();
+    return await this.findOneAndUpdate({user_id: mongoose.Types.ObjectId(userId),
+            _id: mongoose.Types.ObjectId(playlistId)},
+        playlist,
+        {new: true})
+        .exec();
 };
 
 playlistsSchema.statics.checkUserPermission = async function (playlistId, userId) {
@@ -94,6 +95,12 @@ playlistsSchema.statics.checkUserPermission = async function (playlistId, userId
     }).exec();
 
     return !!playlist;
+};
+
+playlistsSchema.statics.updateNbItems = async function (playlistId, nbItems) {
+    return await this.findOneAndUpdate({_id: mongoose.Types.ObjectId(playlistId)},
+        {$inc: {nbItems: nbItems}})
+        .exec();
 };
 
 /* Static functions */
