@@ -10,9 +10,9 @@ Start the server
 
 routes/index.js : The sign in/sign up with Google.
 
-routes/playlists : RESTful services on playlists.
+routes/playlists : RESTful services for playlist ressources.
 
-routes/songs : RESTful services on songs.
+routes/songs : RESTful services for song ressources.
 
 ## Swagger Documentation
 
