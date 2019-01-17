@@ -256,6 +256,142 @@ paths:
         500:
           description: "Internal server error"
 
+  /songs/import/youtube:
+    post:
+      tags:
+        - "Songs"
+      summary: "Creates songs in the API from Youtube API."
+      description: "Creates songs in the API from Youtube API videos. The body must have the exact data source from Youtube API in order to save the metadata from Youtube API."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        required: true
+        name: Authorization
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: query
+        name: playlistId
+        description: "The playlist's ID in which all the songs will be created."
+        required: true
+        schema:
+          type: string
+      - in: body
+        required: true
+        name: body
+        description: "Array of the Youtube API video ressource (the minimum schema of the body)"
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              snippet:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  playlistId:
+                    type: string
+              contentDetails:
+                type: object
+                properties:
+                  videoId:
+                    type: string
+      responses:
+        400:
+          description: "Bad request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
+        200:
+          description: "Successful operation"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                artist:
+                  type: string
+                genre:
+                  type: string
+                link:
+                  type: string
+                playlist_id:
+                  type: string
+
+        500:
+          description: "Internal server error"
+  /songs/import/api:
+    post:
+      tags:
+      - "Songs"
+      summary: "Creates songs in the API."
+      description: "Creates songs in the API in order to mix different songs from different playlists into one playlist. The body must be an array of Songs."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        required: true
+        name: Authorization
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: query
+        name: playlistId
+        description: "The playlist's ID in which the songs will be created."
+        required: true
+        schema:
+          type: string
+      - in: body
+        required: true
+        name: body
+        description: "Array of Songs. The name and link properties are required for each object in the array."
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              artist:
+                type: string
+              genre:
+                type: string
+              link:
+                type: string
+      responses:
+        400:
+          description: "Bad request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
+        200:
+          description: "Successful operation"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                artist:
+                  type: string
+                genre:
+                  type: string
+                link:
+                  type: string
+                playlist_id:
+                  type: string
+
+        500:
+          description: "Internal server error"
+
+
   /pet/{petId}:
     get:
       tags:
