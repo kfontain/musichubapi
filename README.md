@@ -6,6 +6,10 @@ Install the necessary packages with
 Start the server
 ```npm start```
 
+## Deployed version
+
+Deployed version can be found at : [link](https://musichubapi.herokuapp.com/)
+
 ## Architecture
 
 routes/index.js : The sign in/sign up with Google.
