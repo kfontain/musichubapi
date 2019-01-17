@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "Projet web M2 GL - Université de Bordeaux - Michel Massamiri & Kenji Fontaine [lien GitHub](https://github.com/michelmassamiri/MusicHub)."
+  description: "Projet web M2 GL - Université de Bordeaux - Michel Massamiri & Kenji Fontaine."
   version: "1.0.0"
   title: "MusicHub"
   license:
@@ -9,13 +9,445 @@ info:
 tags: 
 - name: "Authentification"
   description: "Social media authentification"
-- name: "Songs"
-  description: "Operations about songs"
 - name: "Playlists"
   description: "Operations about playlists"
+- name: "Songs"
+  description: "Operations about songs"
 schemes:
 - "https"
+
 paths:
+  /auth/google:
+    post:
+      tags:
+      - "Authentification"
+      summary: "One-click sign up with Google"
+      description: "Logs in the user and generates a MusicHub token that can be used for all subsequent requests. Valid for 2 hours. If this is the first connection for the user, it will add the user to MusicHub's database using his Google credententials."
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        name: Authorization-google
+        description: "Token ID from user's Google account."
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: "Succesful Operation"
+          headers:
+            generatedToken:
+              schema:
+                type: string
+              description: "MusicHub's token for the user. Valid for 2 hours."
+          schema:
+            type: object
+            properties:
+              firstname:
+                type: string
+              lastname:
+                type: string
+              email: 
+                type: string
+              socialMediasToken:
+                type: object
+                properties:
+                  google:
+                    type: string
+                  spotify:
+                    type: string
+                  deezer:
+                    type: string
+        500:
+          description: "Internal Server Error"
+
+  /playlists:
+    post:
+      tags:
+      - "Playlists"
+      summary: "Creates a new playlist with form data"
+      description: "Creates a new playlist in MusicHub's database."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: body
+        name: body
+        description: "The title property is required."
+        required: true
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            genre:
+              type: string
+            link:
+              type: string
+            thumbnail:
+              type: string
+            description:
+              type: string
+            nbItems:
+              type: number
+      responses:
+        200:
+          description: "Succesful Operation"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              genre:
+                type: string
+              link:
+                type: string
+              thumbnail:
+                type: string
+              description:
+                type: string
+              nbItems:
+                type: number
+              user_id:
+                type: string
+        401:
+          description: "Unauthorized Access"
+        500:
+          description: "Internal Server Error"
+
+    get:
+      tags:
+        - "Playlists"
+      summary: "Finds all the playlists of the authenticated user"
+      description: ""
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      responses:
+        200:
+          description: "Succesful operation"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                title:
+                  type: string
+                genre:
+                  type: string
+                link:
+                  type: string
+                thumbnail:
+                  type: string
+                description:
+                  type: string
+                nbItems:
+                  type: number
+                user_id:
+                  type: string
+        401:
+          description: "Unauthorized Access"
+        404:
+          description: "Not Found"
+        500:
+          description: "Internal Server Error"
+
+  /playlists/{id}:
+    get:
+      tags:
+      - "Playlists"
+      summary: "Finds the playlist of the authenticated user by ID"
+      description:
+      consumes:
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: path
+        name: id
+        description: "Playlist ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: "Succesful Operation"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              genre:
+                type: string
+              link:
+                type: string
+              thumbnail:
+                type: string
+              description:
+                type: string
+              nbItems:
+                type: number
+              user_id:
+                type: string
+        500:
+          description: "Internal Server Error"
+        401:
+          description: "Unauthorized Access"
+        403:
+          description: "Forbidden Access"
+        404:
+          description: "Not Found"
+
+
+    put:
+      tags:
+      - "Playlists"
+      summary: "Updates user's playlist by id with form data"
+      description:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: path
+        name: id
+        description: "Playlist ID"
+        required: true
+        schema:
+          type: string
+      - in: body
+        name: body
+        required: true
+        description: "Only title, description or/and genre can be updated."
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            genre:
+              type: string
+      responses:
+        200:
+          description: "Succesful Operation"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              genre:
+                type: string
+              link:
+                type: string
+              thumbnail:
+                type: string
+              description:
+                type: string
+              nbItems:
+                type: number
+              user_id:
+                type: string
+        500:
+          description: "Internal Server Error"
+        401:
+          description: "Unauthorized Access"
+        403:
+          description: "Forbidden Access"
+        422:
+          description: "Unprocessable Entity. Only title, description or/and genre can be updated."
+
+    delete:
+      tags:
+      - "Playlists"
+      summary: "Deletes the playlist of the authenticated user by ID"
+      description:
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: path
+        name: id
+        description: "Playlist ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: "Succesful Operation : returns deleted playlist"
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              genre:
+                type: string
+              link:
+                type: string
+              thumbnail:
+                type: string
+              description:
+                type: string
+              nbItems:
+                type: number
+              user_id:
+                type: string
+        500:
+          description: "Internal Server Error"
+        401:
+          description: "Unauthorized Access"
+        403:
+          description: "Forbidden Access"
+        404:
+          description: "Not Found"
+
+  /playlists/import/youtube:
+    post:
+      tags:
+      - "Playlists"
+      summary: "Creates playlists in MusicHub's database using the Youtube API"
+      description: "Creates playlists in database if they do not exist, otherwise update them."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        required: true
+        name: Authorization
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - in: body
+        required: true
+        name: body
+        description: "Array of the Youtube API playlist ressource (the minimum schema of the body)."
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              snippet:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  thumbnails:
+                    type: object
+                    properties:
+                      high:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+              contentDetails:
+                type: object
+                properties:
+                  itemCount:
+                    type: number
+      responses:
+        200:
+          description: "Succesful Operation"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                title:
+                  type: string
+                genre:
+                  type: string
+                link:
+                  type: string
+                thumbnail:
+                  type: string
+                description:
+                  type: string
+                nbItems:
+                  type: number
+                user_id:
+                  type: string
+        401:
+          description: "Unauthorized Access"
+        500:
+          description: "Internal Server Error"
+
+  /playlists/thumbnails/upload:
+    post:
+      tags:
+      - "Playlists"
+      summary: "Upload an image to MusicHub"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/json"
+      parameters:
+      - in: header
+        required: true
+        name: Authorization
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
+      - name: "file"
+        in: "formData"
+        required: true
+        type: "file"
+      responses:
+        200:
+          description: "Succesful Operation"
+          schema:
+            type: string
+        401:
+          description: "Unauthorized Access"
+        500:
+          description: "Internal Server Error"
+      
+
   /songs:
     post:
       tags:
@@ -29,12 +461,14 @@ paths:
       parameters:
       - in: header
         name: Authorization
+        required: true
         description: "Bearer + MusicHub's user's token." 
         schema:
           type: string
       - in: body
         name: body
-        description: "Song"
+        required: true
+        description: "name, link and playlist_id are required."
         type: object
         properties:
           name:
@@ -48,10 +482,12 @@ paths:
           playlist_id:
             type: string
       responses:
+        401:
+          description: "Unauthorized Access"
         403:
-          description: "Unauthorized access"
+          description: "Forbidden Access"
         200:
-          description: "Successful operation"
+          description: "Successful Operation"
           schema:
             type: object
             properties:
@@ -68,28 +504,31 @@ paths:
               playlist_id:
                 type: string
         500:
-          description: "Internal server error"
+          description: "Internal Server Error"
     get:
       tags:
       - "Songs"
-      summary: "Find all the songs from one or all playlists of the user."
+      summary: "Find all the songs from one or all playlists of the user"
       description: "If no query is specified, will return all the songs of all the playlists. If a playlist id is specified, will return all the songs from that playlist."
       produces:
       - "application/json"
       parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
       - in: query
         name: playlistId
         description: "The playlist's ID from which the songs will be fetched."
         schema:
           type: string
-      - in: header
-        name: Authorization
-        description: "Bearer + MusicHub's user's token." 
-        schema:
-          type: string
       responses:
+        401:
+          description: "Unauthorized Access"
         403:
-          description: "Unauthorized access"
+          description: "Forbidden Access"
         404:
           description: "No playlist was found"
         200:
@@ -118,32 +557,37 @@ paths:
     get:
       tags:
       - "Songs"
-      summary: "Find song of the user by ID."
+      summary: "Find song of the user by ID"
       description: "Return the user's song with the specified ID."
       produces:
       - "application/json"
       parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
       - in: path
         name: id
         description: "Song ID"
         required: true
         schema:
           type: string
-      - in: header
-        name: Authorization
-        description: "Bearer + MusicHub's user's token." 
-        schema:
-          type: string
       responses:
         404:
-          description: "Song not found"
+          description: "Not Found"
         403:
-          description: "Unauthorized access"
+          description: "Forbidden Access"
+        401:
+          description: "Unauthorized Access"
         200:
-          description: "Successful operation"
+          description: "Successful Operation"
           schema:
             type: object
             properties:
+              id:
+                type: string
               name:
                 type: string
               artist:
@@ -155,12 +599,12 @@ paths:
               playlist_id:
                 type: string
         500:
-          description: "Internal server error"
+          description: "Internal Server Error"
+
     put:
       tags:
       - "Songs"
-      summary: "Updates user's song specified by the ID with form data."
-      description: "Updates user's song specified by the ID with form data."
+      summary: "Updates user's song specified by the ID with form data"
       consumes:
       - "application/json"
       produces:
@@ -168,6 +612,7 @@ paths:
       parameters:
       - in: header
         name: Authorization
+        required: true
         description: "Bearer + MusicHub's user's token." 
         schema:
           type: string
@@ -192,10 +637,12 @@ paths:
               type: string
       responses:
         200:
-          description: "Successful operation"
+          description: "Successful Operation"
           schema:
             type: object
             properties:
+              id:
+                type: string
               name:
                 type: string
               artist:
@@ -207,42 +654,48 @@ paths:
               playlist_id:
                 type: string
         404:
-          description: "Song not found"
+          description: "Not Found"
         403:
-          description: "Unauthorized access"
+          description: "Forbidden Access"
         422:
           description: "Unprocessable Entity, only name, artist and/or genre can be provided."
         500:
-          description: "Internal server error"
+          description: "Internal Server Error"
+        401:
+          description: "Unauthorized Acess"
     delete:
       tags:
         - "Songs"
-      summary: "Deletes song of the user by ID."
-      description: "Deletes the user's song with the specified ID."
+      summary: "Deletes song of the user by ID"
       produces:
       - "application/json"
       parameters:
+      - in: header
+        name: Authorization
+        required: true
+        description: "Bearer + MusicHub's user's token." 
+        schema:
+          type: string
       - in: path
         name: id
         description: "Song ID"
         required: true
         schema:
           type: string
-      - in: header
-        name: Authorization
-        description: "Bearer + MusicHub's user's token." 
-        schema:
-          type: string
       responses:
         404:
-          description: "Song not found"
+          description: "Not Found"
         403:
-          description: "Unauthorized access"
+          description: "Forbidden Access"
+        401:
+          description: "Unauthorized Access"
         200:
-          description: "Successful operation"
+          description: "Successful Operation. Deleted song returned"
           schema:
             type: object
             properties:
+              id:
+                type: string
               name:
                 type: string
               artist:
@@ -254,14 +707,14 @@ paths:
               playlist_id:
                 type: string
         500:
-          description: "Internal server error"
+          description: "Internal Server Error"
 
   /songs/import/youtube:
     post:
       tags:
         - "Songs"
-      summary: "Creates songs in the API from Youtube API."
-      description: "Creates songs in the API from Youtube API videos. The body must have the exact data source from Youtube API in order to save the metadata from Youtube API."
+      summary: "Creates songs in MusicHub's database using the Youtube API"
+      description: "Creates songs in the database if they do not exist, otherwise update them. The body must have the exact data source from Youtube API in order to save the metadata from Youtube API."
       consumes:
       - "application/json"
       produces:
@@ -302,9 +755,9 @@ paths:
                     type: string
       responses:
         400:
-          description: "Bad request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
+          description: "Bad Request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
         200:
-          description: "Successful operation"
+          description: "Successful Operation"
           schema:
             type: array
             items:
@@ -322,14 +775,16 @@ paths:
                   type: string
                 playlist_id:
                   type: string
+        401:
+          description: "Unauthorized Access"
 
         500:
-          description: "Internal server error"
+          description: "Internal Server Error"
   /songs/import/api:
     post:
       tags:
       - "Songs"
-      summary: "Creates songs in the API."
+      summary: "Creates songs in the API"
       description: "Creates songs in the API in order to mix different songs from different playlists into one playlist. The body must be an array of Songs."
       consumes:
       - "application/json"
@@ -367,9 +822,9 @@ paths:
                 type: string
       responses:
         400:
-          description: "Bad request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
+          description: "Bad Request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
         200:
-          description: "Successful operation"
+          description: "Successful Operation"
           schema:
             type: array
             items:
@@ -387,551 +842,65 @@ paths:
                   type: string
                 playlist_id:
                   type: string
+        401:
+          description: "Unauthorized Access"
 
         500:
-          description: "Internal server error"
+          description: "Internal Server Error"
 
-
-  /pet/{petId}:
-    get:
-      tags:
-      - "pet"
-      summary: "Find pet by ID"
-      description: "Returns a single pet"
-      operationId: "getPetById"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to return"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - api_key: []
-    post:
-      tags:
-      - "pet"
-      summary: "Updates a pet in the store with form data"
-      description: ""
-      operationId: "updatePetWithForm"
-      consumes:
-      - "application/x-www-form-urlencoded"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet that needs to be updated"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "name"
-        in: "formData"
-        description: "Updated name of the pet"
-        required: false
-        type: "string"
-      - name: "status"
-        in: "formData"
-        description: "Updated status of the pet"
-        required: false
-        type: "string"
-      responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    delete:
-      tags:
-      - "pet"
-      summary: "Deletes a pet"
-      description: ""
-      operationId: "deletePet"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
-        type: "string"
-      - name: "petId"
-        in: "path"
-        description: "Pet id to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/{petId}/uploadImage:
-    post:
-      tags:
-      - "pet"
-      summary: "uploads an image"
-      description: ""
-      operationId: "uploadFile"
-      consumes:
-      - "multipart/form-data"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to update"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "additionalMetadata"
-        in: "formData"
-        description: "Additional data to pass to server"
-        required: false
-        type: "string"
-      - name: "file"
-        in: "formData"
-        description: "file to upload"
-        required: false
-        type: "file"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/ApiResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /store/inventory:
-    get:
-      tags:
-      - "store"
-      summary: "Returns pet inventories by status"
-      description: "Returns a map of status codes to quantities"
-      operationId: "getInventory"
-      produces:
-      - "application/json"
-      parameters: []
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
-      security:
-      - api_key: []
-  /store/order:
-    post:
-      tags:
-      - "store"
-      summary: "Place an order for a pet"
-      description: ""
-      operationId: "placeOrder"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "order placed for purchasing the pet"
-        required: true
-        schema:
-          $ref: "#/definitions/Order"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid Order"
-  /store/order/{orderId}:
-    get:
-      tags:
-      - "store"
-      summary: "Find purchase order by ID"
-      description: "For valid response try integer IDs with value >= 1 and <= 10.         Other values will generated exceptions"
-      operationId: "getOrderById"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of pet that needs to be fetched"
-        required: true
-        type: "integer"
-        maximum: 10.0
-        minimum: 1.0
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-    delete:
-      tags:
-      - "store"
-      summary: "Delete purchase order by ID"
-      description: "For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors"
-      operationId: "deleteOrder"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of the order that needs to be deleted"
-        required: true
-        type: "integer"
-        minimum: 1.0
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-  /user:
-    post:
-      tags:
-      - "user"
-      summary: "Create user"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/createWithArray:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithArrayInput"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/createWithList:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithListInput"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/login:
-    get:
-      tags:
-      - "user"
-      summary: "Logs user into the system"
-      description: ""
-      operationId: "loginUser"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "username"
-        in: "query"
-        description: "The user name for login"
-        required: true
-        type: "string"
-      - name: "password"
-        in: "query"
-        description: "The password for login in clear text"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "string"
-          headers:
-            X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
-            X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
-        400:
-          description: "Invalid username/password supplied"
-  /user/logout:
-    get:
-      tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters: []
-      responses:
-        default:
-          description: "successful operation"
-  /user/{username}:
-    get:
-      tags:
-      - "user"
-      summary: "Get user by user name"
-      description: ""
-      operationId: "getUserByName"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-    put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
-    delete:
-      tags:
-      - "user"
-      summary: "Delete user"
-      description: "This can only be done by the logged in user."
-      operationId: "deleteUser"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be deleted"
-        required: true
-        type: "string"
-      responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-securityDefinitions:
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-    flow: "implicit"
-    scopes:
-      write:pets: "modify pets in your account"
-      read:pets: "read your pets"
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
 definitions:
-  Order:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      petId:
-        type: "integer"
-        format: "int64"
-      quantity:
-        type: "integer"
-        format: "int32"
-      shipDate:
-        type: "string"
-        format: "date-time"
-      status:
-        type: "string"
-        description: "Order Status"
-        enum:
-        - "placed"
-        - "approved"
-        - "delivered"
-      complete:
-        type: "boolean"
-        default: false
-    xml:
-      name: "Order"
-  Category:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Category"
   User:
-    type: "object"
+    type: object
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+      email: 
+        type: string
+      socialMediasToken:
+        type: object
+        properties:
+          google:
+            type: string
+          spotify:
+            type: string
+          deezer:
+            type: string
+  Playlist:
+    type: object
     properties:
       id:
-        type: "integer"
-        format: "int64"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-      password:
-        type: "string"
-      phone:
-        type: "string"
-      userStatus:
-        type: "integer"
-        format: "int32"
-        description: "User Status"
-    xml:
-      name: "User"
-  Tag:
-    type: "object"
+        type: string
+      title:
+        type: string
+      genre:
+        type: string
+      link:
+        type: string
+      thumbnail:
+        type: string
+      description:
+        type: string
+      nbItems:
+        type: number
+      user_id:
+        type: string
+  Song:
+    type: object
     properties:
       id:
-        type: "integer"
-        format: "int64"
+        type: string
       name:
-        type: "string"
-    xml:
-      name: "Tag"
-  Pet:
-    type: "object"
-    required:
-    - "name"
-    - "photoUrls"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      category:
-        $ref: "#/definitions/Category"
-      name:
-        type: "string"
-        example: "doggie"
-      photoUrls:
-        type: "array"
-        xml:
-          name: "photoUrl"
-          wrapped: true
-        items:
-          type: "string"
-      tags:
-        type: "array"
-        xml:
-          name: "tag"
-          wrapped: true
-        items:
-          $ref: "#/definitions/Tag"
-      status:
-        type: "string"
-        description: "pet status in the store"
-        enum:
-        - "available"
-        - "pending"
-        - "sold"
-    xml:
-      name: "Pet"
-  ApiResponse:
-    type: "object"
-    properties:
-      code:
-        type: "integer"
-        format: "int32"
-      type:
-        type: "string"
-      message:
-        type: "string"
+        type: string
+      artist:
+        type: string
+      genre:
+        type: string
+      link:
+        type: string
+      playlist_id:
+        type: string
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
