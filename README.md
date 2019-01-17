@@ -16,7 +16,7 @@ routes/songs : RESTful services for song ressources.
 
 ## Swagger Documentation
 
-[Can be found in the /doc directory.](https://github.com/kfontain/musichubapi/blob/master/doc/swagger.yml)
+[Can be found in the /doc directory.](https://github.com/kfontain/musichubapi/blob/master/doc)
 
 ## Requirements
 
